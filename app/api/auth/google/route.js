@@ -18,7 +18,8 @@ export async function GET() {
     redirect_uri: redirectUri,
     response_type: "code",
     access_type: "offline",
-    scope: "https://www.googleapis.com/auth/yt-analytics.readonly",
+    scope:
+  "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/youtube.readonly",
     prompt: "consent",
   });
 
