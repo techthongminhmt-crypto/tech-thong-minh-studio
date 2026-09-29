@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Thông Minh - Quản lý kênh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060c1a;--pan:#0d1730;--line:#1c2b4d;--tx:#e8eefb;--mu:#8b9dc0;--cy:#22d3ee;--bl:#3b82f6;--ok:#34d399;--wa:#fbbf24;--er:#f87171;--pu:#a78bfa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:20px;color:var(--cy);border:2px solid var(--cy);box-shadow:0 0 18px #22d3ee55}
+h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.3px}
+header small{color:var(--mu);display:block;font-weight:400;font-size:13px}
+.sp{flex:1}
+.stats{display:flex;gap:22px;flex-wrap:wrap}
+.stats b{font-size:22px;font-weight:800;display:block;line-height:1.1}
+.stats span{color:var(--mu);font-size:12px}
+nav.main{display:flex;gap:6px;padding:14px 24px 0;max-width:1200px;margin:0 auto}
+nav.main button{font:inherit;font-weight:700;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--mu);border-radius:10px 10px 0 0;padding:9px 16px}
+nav.main button.on{color:var(--tx);border-color:var(--line) var(--line) var(--bg) var(--line);background:var(--pan)}
+main{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:24px;padding:0 24px 24px;max-width:1200px;margin:0 auto;border-top:1px solid var(--line)}
+main.view{padding-top:20px}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:0 16px 16px}main.view{padding-top:16px}}
+.view{display:none}.view.on{display:grid}
+h2{font-size:16px;margin:0 0 12px}
+form,.panel{background:var(--pan);border:1px solid var(--line);border-radius:12px;padding:16px}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+input,textarea,select{width:100%;background:#08122a;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:inherit}
+textarea{min-height:76px;resize:vertical}
+input:focus,textarea:focus,select:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--cy);outline-offset:1px}
+.pl{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.pl label{display:flex;align-items:center;gap:6px;margin:0;color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.pl input{width:auto}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--tx);padding:7px 12px}
+button:hover{border-color:var(--cy)}
+.pri{background:linear-gradient(90deg,var(--cy),var(--bl));color:#04101f;border:0;font-weight:700;width:100%;margin-top:14px;padding:10px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tabs button.on{background:var(--cy);color:#04101f;border-color:var(--cy);font-weight:700}
+.row{border-top:1px solid var(--line);padding:14px 0;display:grid;gap:6px}
+.row:last-child{border-bottom:1px solid var(--line)}
+.top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.top strong{font-size:16px}
+.tag{font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.draft{color:var(--mu)}.approved{color:var(--wa)}.sent{color:var(--cy)}.posted{color:var(--ok)}
+.score{color:var(--pu)}.win{color:var(--bl)}.series{color:var(--ok)}
+.meta{color:var(--mu);font-size:13px}
+.cap{color:#c5d1ea;font-size:14px;white-space:pre-wrap}
+.act{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.act button{font-size:13px;padding:5px 10px}
+.empty{color:var(--mu);padding:28px 0}
+details.set{margin-top:16px}
+summary{cursor:pointer;font-weight:700}
+.hint{color:var(--mu);font-size:12px;margin:6px 0 0}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pan);border:1px solid var(--cy);padding:10px 18px;border-radius:10px;display:none;max-width:90vw;z-index:9}
+@media(prefers-reduced-motion:no-preference){#toast.show{animation:up .25s ease-out}}
+@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}
+a.src{color:var(--cy)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">T</div>
+  <div><h1>Tech Thông Minh</h1><small>Ý tưởng, kịch bản và đăng video đa nền tảng</small></div>
+  <div class="sp"></div>
+  <div class="stats" id="stats"></div>
+</header>
+<nav class="main">
+  <button data-v="ideas" class="on">Ý tưởng</button>
+  <button data-v="queue">Hàng chờ video</button>
+</nav>
+ 
+<main class="view on" id="v-ideas">
+  <section>
+    <form id="fi">
+      <h2>Thêm ý tưởng</h2>
+      <label for="it">Chủ đề</label><input id="it" required maxlength="120">
+      <label for="is">Chuỗi</label>
+      <select id="is">
+        <option value="ai">AI làm giúp bạn</option>
+        <option value="tip">Mẹo điện thoại, máy tính</option>
+        <option value="shop">Đồ công nghệ đáng mua</option>
+        <option value="myth">Đúng hay sai?</option>
+      </select>
+      <label for="iw">Khung thời gian</label>
+      <select id="iw">
+        <option value="3d">2-3 ngày gần đây</option>
+        <option value="7d">7 ngày qua</option>
+        <option value="30d">30 ngày qua</option>
+      </select>
+      <label for="isc">Điểm ưu tiên (0-100)</label><input id="isc" type="number" min="0" max="100" value="60">
+      <label for="iu">Link nguồn</label><input id="iu" type="url" placeholder="https://...">
+      <label for="in">Ghi chú / góc nhìn</label><textarea id="in" placeholder="Vì sao chủ đề này đáng làm, góc nhìn riêng là gì"></textarea>
+      <button class="pri" type="submit">Lưu ý tưởng</button>
+    </form>
+    <details class="set" open>
+      <summary>Nạp / đồng bộ với GitHub</summary>
+      <label for="gr2">Repo (chủ-sở-hữu/tên-repo)</label><input id="gr2" placeholder="ten-ban/tech-thong-minh">
+      <label for="gb">Nhánh</label><input id="gb" value="main">
+      <label for="gt">GitHub token (đọc/ghi nội dung repo)</label><input id="gt" type="password" placeholder="ghp_...">
+      <div class="act">
+        <button type="button" id="pullIdeas">Nạp ideas.json</button>
+        <button type="button" id="pushIdeas">Đẩy ideas.json lên</button>
+      </div>
+      <p class="hint">n8n ghi ý tưởng mới vào file <code>ideas.json</code> trong repo. Bấm "Nạp" để lấy về đây, "Đẩy" để lưu ngược lại sau khi bạn duyệt hoặc bỏ.</p>
+    </details>
+  </section>
+  <section>
+    <h2>Ý tưởng chờ duyệt</h2>
+    <div class="tabs" id="itabs"></div>
+    <div id="ilist"></div>
+  </section>
+</main>
+ 
+<main class="view" id="v-queue">
+  <section>
+    <form id="f">
+      <h2>Thêm video vào hàng chờ</h2>
+      <label for="t">Tiêu đề</label><input id="t" required maxlength="100">
+      <label for="c">Mô tả / caption</label><textarea id="c"></textarea>
+      <label for="h">Hashtag</label><input id="h" placeholder="#AI #congnghe #gadget">
+      <label for="u">Link video (file .mp4 đã tải lên)</label><input id="u" type="url" placeholder="https://...">
+      <label for="d">Giờ đăng</label><input id="d" type="datetime-local">
+      <label>Nền tảng</label>
+      <div class="pl" id="pl"></div>
+      <button class="pri" type="submit">Lưu vào hàng chờ</button>
+    </form>
+    <details class="set">
+      <summary>Cài đặt n8n</summary>
+      <label for="wu">Webhook URL của n8n</label><input id="wu" placeholder="https://n8n.example.com/webhook/dang-video">
+      <label for="wt">Mã bảo mật (gửi kèm header X-Auth-Token)</label><input id="wt" type="password">
+      <div class="act"><button type="button" id="sv">Lưu cài đặt</button><button type="button" id="gh">Mở repo GitHub</button></div>
+      <p class="hint">Cài đặt chỉ lưu trong trình duyệt của bạn, không gửi đi đâu khác.</p>
+    </details>
+  </section>
+  <section>
+    <h2>Hàng chờ đăng</h2>
+    <div class="tabs" id="tabs"></div>
+    <div id="list"></div>
+  </section>
+</main>
+ 
+<div id="toast" role="status"></div>
+<script>
+const PL={yt:'YouTube Shorts',fb:'Facebook Reels',ig:'Instagram Reels',tt:'TikTok'};
+const ST={draft:'Nháp',approved:'Đã duyệt',sent:'Đã gửi n8n',posted:'Đã đăng'};
+const SR={ai:'AI làm giúp bạn',tip:'Mẹo điện thoại, máy tính',shop:'Đồ đáng mua',myth:'Đúng hay sai?'};
+const WN={'3d':'2-3 ngày','7d':'7 ngày','30d':'30 ngày'};
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const svls=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let q=ld('ttm_q',[]),ideas=ld('ttm_ideas',[]),cfg=ld('ttm_cfg',{}),gh=ld('ttm_gh',{}),flt='all',iflt='all';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3200)}
+ 
+document.querySelectorAll('nav.main button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav.main button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('main.view').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');$('v-'+b.dataset.v).classList.add('on');
+});
+ 
+$('pl').innerHTML=Object.entries(PL).map(([k,v])=>`<label><input type="checkbox" value="${k}" checked>${v}</label>`).join('');
+$('wu').value=cfg.url||'';$('wt').value=cfg.token||'';
+$('sv').onclick=()=>{cfg={url:$('wu').value.trim(),token:$('wt').value};svls('ttm_cfg',cfg);toast('Đã lưu cài đặt')};
+$('gh').onclick=()=>{gh.repo?window.open('https://github.com/'+gh.repo,'_blank','noopener'):toast('Hãy nhập repo GitHub ở tab Ý tưởng trước')};
+$('f').onsubmit=e=>{e.preventDefault();
+  const p=[...document.querySelectorAll('#pl input:checked')].map(x=>x.value);
+  if(!p.length)return toast('Chọn ít nhất một nền tảng');
+  q.unshift({id:Date.now().toString(36),title:$('t').value.trim(),caption:$('c').value.trim(),hashtags:$('h').value.trim(),videoUrl:$('u').value.trim(),scheduledAt:$('d').value,platforms:p,status:'draft'});
+  e.target.reset();document.querySelectorAll('#pl input').forEach(x=>x.checked=true);saveQ();toast('Đã lưu vào hàng chờ')};
+const payload=v=>({id:v.id,title:v.title,caption:v.caption,hashtags:v.hashtags,videoUrl:v.videoUrl,platforms:v.platforms,scheduledAt:v.scheduledAt?new Date(v.scheduledAt).toISOString():null,source:'tech-thong-minh-dashboard'});
+async function act(id,a){
+  const v=q.find(x=>x.id===id);if(!v)return;
+  if(a==='del'){if(confirm('Xoá video này khỏi hàng chờ?')){q=q.filter(x=>x!==v);saveQ()}return}
+  if(a==='ok'){v.status='approved';return saveQ()}
+  if(a==='done'){v.status='posted';return saveQ()}
+  if(a==='copy'){try{await navigator.clipboard.writeText(JSON.stringify(payload(v),null,2));toast('Đã sao chép JSON')}catch(e){toast('Không sao chép được')}return}
+  if(a==='send'){
+    if(!cfg.url)return toast('Hãy nhập Webhook URL trong phần Cài đặt');
+    if(!v.videoUrl)return toast('Video cần có link .mp4 trước khi gửi');
+    try{const r=await fetch(cfg.url,{method:'POST',headers:{'Content-Type':'application/json',...(cfg.token?{'X-Auth-Token':cfg.token}:{})},body:JSON.stringify(payload(v))});
+      if(!r.ok)throw new Error('mã '+r.status);v.status='sent';saveQ();toast('Đã gửi tới n8n')}
+    catch(e){toast('Gửi thất bại ('+e.message+'). Kiểm tra URL và Allowed Origins của webhook')}
+  }
+}
+function saveQ(){svls('ttm_q',q);renderQ()}
+function renderQ(){
+  const c=s=>q.filter(x=>x.status===s).length;
+  $('stats').innerHTML=`<div><b>${ideas.filter(x=>x.status==='new').length}</b><span>Ý tưởng chờ duyệt</span></div><div><b>${c('draft')+c('approved')}</b><span>Video chờ xử lý</span></div><div><b>${c('sent')}</b><span>Đã gửi n8n</span></div><div><b>${c('posted')}</b><span>Đã đăng</span></div>`;
+  $('tabs').innerHTML=[['all','Tất cả'],...Object.entries(ST)].map(([k,v])=>`<button class="${flt===k?'on':''}" data-f="${k}">${v}</button>`).join('');
+  const l=q.filter(x=>flt==='all'||x.status===flt);
+  $('list').innerHTML=l.length?l.map(v=>`<div class="row"><div class="top"><strong>${esc(v.title)}</strong><span class="tag ${v.status}">${ST[v.status]}</span></div>
+  <div class="meta">${v.platforms.map(p=>PL[p]).join(', ')}${v.scheduledAt?' - lên lịch '+esc(new Date(v.scheduledAt).toLocaleString('vi-VN')):' - chưa hẹn giờ'}</div>
+  ${v.caption?`<div class="cap">${esc(v.caption)}${v.hashtags?'\n'+esc(v.hashtags):''}</div>`:''}
+  <div class="act">${v.status==='draft'?`<button data-a="ok" data-i="${v.id}">Duyệt</button>`:''}
+  ${v.status==='approved'?`<button data-a="send" data-i="${v.id}">Gửi tới n8n</button>`:''}
+  ${v.status==='sent'?`<button data-a="done" data-i="${v.id}">Đánh dấu đã đăng</button>`:''}
+  <button data-a="copy" data-i="${v.id}">Sao chép JSON</button><button data-a="del" data-i="${v.id}">Xoá</button></div></div>`).join(''):'<div class="empty">Chưa có video nào ở mục này.</div>';
+}
+document.addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(b){act(b.dataset.i,b.dataset.a);return}
+  const f=e.target.closest('button[data-f]');if(f){flt=f.dataset.f;renderQ()}});
+ 
+$('gr2').value=gh.repo||'';$('gb').value=gh.branch||'main';$('gt').value=gh.token||'';
+function saveGh(){gh={repo:$('gr2').value.trim(),branch:$('gb').value.trim()||'main',token:$('gt').value};svls('ttm_gh',gh)}
+$('fi').onsubmit=e=>{e.preventDefault();
+  ideas.unshift({id:Date.now().toString(36),topic:$('it').value.trim(),series:$('is').value,window:$('iw').value,score:Number($('isc').value)||0,url:$('iu').value.trim(),note:$('in').value.trim(),status:'new'});
+  e.target.reset();$('isc').value=60;saveI();toast('Đã lưu ý tưởng')};
+async function ghApi(path,opts={}){
+  saveGh();
+  if(!gh.repo)throw new Error('chưa nhập repo');
+  const url=`https://api.github.com/repos/${gh.repo}/contents/${path}?ref=${encodeURIComponent(gh.branch)}`;
+  const headers={Accept:'application/vnd.github+json',...(gh.token?{Authorization:'Bearer '+gh.token}:{})};
+  return fetch(url,{headers,...opts});
+}
+$('pullIdeas').onclick=async()=>{
+  try{const r=await ghApi('ideas.json');
+    if(r.status===404)return toast('Chưa có ideas.json trong repo. n8n sẽ tạo file này.');
+    if(!r.ok)throw new Error('mã '+r.status);
+    const j=await r.json();const arr=JSON.parse(decodeURIComponent(escape(atob(j.content))));
+    const known=new Set(ideas.map(x=>x.topic+'|'+x.url));
+    let added=0;(Array.isArray(arr)?arr:[]).forEach(x=>{const key=(x.topic||x.title||'')+'|'+(x.url||'');if(known.has(key))return;
+      ideas.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),topic:x.topic||x.title||'(không có tiêu đề)',series:x.series||'ai',window:x.window||'7d',score:Number(x.score)||0,url:x.url||'',note:x.note||'',status:'new'});added++});
+    saveI();toast(added?`Đã nạp ${added} ý tưởng mới`:'Không có ý tưởng mới')}
+  catch(e){toast('Nạp thất bại: '+e.message)}
+};
+$('pushIdeas').onclick=async()=>{
+  try{
+    const cur=await ghApi('ideas.json');let sha;
+    if(cur.ok){sha=(await cur.json()).sha}
+    const body={message:'Cập nhật ideas.json từ trang quản lý',content:btoa(unescape(encodeURIComponent(JSON.stringify(ideas,null,2)))),branch:gh.branch,...(sha?{sha}:{})};
+    const r=await ghApi('ideas.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok)throw new Error('mã '+r.status);toast('Đã đẩy ideas.json lên repo')}
+  catch(e){toast('Đẩy thất bại: '+e.message)}
+};
+function saveI(){svls('ttm_ideas',ideas);renderI()}
+function iact(id,a){
+  const v=ideas.find(x=>x.id===id);if(!v)return;
+  if(a==='use'){
+    q.unshift({id:Date.now().toString(36),title:v.topic,caption:v.note,hashtags:'',videoUrl:'',scheduledAt:'',platforms:['yt','fb','ig','tt'],status:'draft'});
+    v.status='used';saveQ();saveI();toast('Đã tạo video nháp trong Hàng chờ');return}
+  if(a==='drop'){v.status='dismissed';return saveI()}
+  if(a==='del'){ideas=ideas.filter(x=>x!==v);return saveI()}
+}
+function renderI(){
+  renderQ();
+  $('itabs').innerHTML=[['all','Tất cả'],['new','Mới'],['used','Đã làm video'],['dismissed','Đã bỏ']].map(([k,v])=>`<button class="${iflt===k?'on':''}" data-if="${k}">${v}</button>`).join('');
+  const l=ideas.filter(x=>iflt==='all'||x.status===iflt).sort((a,b)=>b.score-a.score);
+  $('ilist').innerHTML=l.length?l.map(v=>`<div class="row"><div class="top"><strong>${esc(v.topic)}</strong><span class="tag score">${v.score} điểm</span><span class="tag series">${SR[v.series]||v.series}</span><span class="tag win">${WN[v.window]||v.window}</span></div>
+  ${v.note?`<div class="cap">${esc(v.note)}</div>`:''}
+  <div class="meta">${v.url?`<a class="src" href="${esc(v.url)}" target="_blank" rel="noopener">Xem nguồn</a>`:'Không có link nguồn'}${v.status!=='new'?' · '+(v.status==='used'?'Đã tạo video':'Đã bỏ'):''}</div>
+  <div class="act">${v.status==='new'?`<button data-ia="use" data-i="${v.id}">Làm video</button><button data-ia="drop" data-i="${v.id}">Bỏ</button>`:''}<button data-ia="del" data-i="${v.id}">Xoá</button></div></div>`).join(''):'<div class="empty">Chưa có ý tưởng nào. Thêm thủ công ở bên trái hoặc nạp từ ideas.json.</div>';
+}
+document.addEventListener('click',e=>{const b=e.target.closest('button[data-ia]');if(b){iact(b.dataset.i,b.dataset.ia);return}
+  const f=e.target.closest('button[data-if]');if(f){iflt=f.dataset.if;renderI()}});
+ 
+renderI();
+</script>
+</body>
+</html>
+ 
